@@ -88,7 +88,7 @@ const questionSchema = z.object({
 });
 
 examsRouter.post('/:id/questions', allow('teacher', 'super_admin'), async (req, res) => {
-  const exam = await canManageExam(req, req.params.id);
+  const exam = await canManageExam(req, String(req.params.id));
   if (!exam) return res.status(404).json({ message: 'Exam not found or access denied' });
   if (exam.status !== 'draft') return res.status(409).json({ message: 'Questions can only be edited while the exam is a draft' });
   const parsed = z.array(questionSchema).min(1).safeParse(req.body.questions);
@@ -103,7 +103,7 @@ examsRouter.post('/:id/questions', allow('teacher', 'super_admin'), async (req, 
 });
 
 examsRouter.post('/:id/publish', allow('teacher', 'super_admin'), async (req, res) => {
-  const exam = await canManageExam(req, req.params.id);
+  const exam = await canManageExam(req, String(req.params.id));
   if (!exam) return res.status(404).json({ message: 'Exam not found or access denied' });
   const questionCount = await Question.countDocuments({ exam: exam._id });
   if (questionCount === 0) return res.status(409).json({ message: 'Add at least one question before publishing' });
@@ -114,7 +114,7 @@ examsRouter.post('/:id/publish', allow('teacher', 'super_admin'), async (req, re
 });
 
 examsRouter.post('/:id/live', allow('teacher', 'super_admin'), async (req, res) => {
-  const exam = await canManageExam(req, req.params.id);
+  const exam = await canManageExam(req, String(req.params.id));
   if (!exam) return res.status(404).json({ message: 'Exam not found or access denied' });
   exam.status = 'live';
   if (req.body.startNow) exam.startAt = new Date();
@@ -124,7 +124,7 @@ examsRouter.post('/:id/live', allow('teacher', 'super_admin'), async (req, res) 
 });
 
 examsRouter.post('/:id/end', allow('teacher', 'super_admin'), async (req, res) => {
-  const exam = await canManageExam(req, req.params.id);
+  const exam = await canManageExam(req, String(req.params.id));
   if (!exam) return res.status(404).json({ message: 'Exam not found or access denied' });
   exam.status = 'completed';
   exam.endAt = new Date();
@@ -134,7 +134,7 @@ examsRouter.post('/:id/end', allow('teacher', 'super_admin'), async (req, res) =
 });
 
 examsRouter.get('/:id/monitor', allow('teacher', 'super_admin'), async (req, res) => {
-  const exam = await canManageExam(req, req.params.id);
+  const exam = await canManageExam(req, String(req.params.id));
   if (!exam) return res.status(404).json({ message: 'Exam not found or access denied' });
   const [students, questionCount] = await Promise.all([User.find({ role: 'student', $or: [{ batch: exam.batch }, { _id: { $in: exam.assignedStudents } }] })
     .select('name email studentCode batch').lean(), Question.countDocuments({ exam: exam._id })]);

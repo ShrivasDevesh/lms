@@ -10,7 +10,9 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
     if (!token) return res.status(401).json({ message: 'Authentication required' });
 
     const payload = jwt.verify(token, config.JWT_SECRET) as { sub: string };
-    const user = await User.findById(payload.sub).select('_id name email role batch active').lean();
+    const user = await User.findById(payload.sub)
+      .select('_id name email role batch studentCode subjects active')
+      .lean();
     if (!user || !user.active) return res.status(401).json({ message: 'Account is unavailable' });
     req.user = user as NonNullable<Request['user']>;
     next();

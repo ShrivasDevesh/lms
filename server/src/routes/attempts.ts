@@ -111,7 +111,7 @@ attemptsRouter.post('/:id/submit', allow('student'), async (req, res) => {
   const owned = await Attempt.exists({ _id: req.params.id, student: req.user!._id });
   if (!owned) return res.status(404).json({ message: 'Attempt not found' });
   try {
-    const result = await submitAttempt(req.params.id);
+    const result = await submitAttempt(String(req.params.id));
     res.json({ result });
   } catch (error) {
     res.status(409).json({ message: error instanceof Error ? error.message : 'Unable to submit exam' });

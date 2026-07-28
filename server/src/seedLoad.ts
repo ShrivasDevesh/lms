@@ -22,7 +22,7 @@ const run = async () => {
           $set: {
             name: `Load Student ${number}`,
             passwordHash,
-            role: 'student',
+            role: 'student' as const,
             studentCode: `LOAD-${String(number).padStart(4, '0')}`,
             batch,
             active: true

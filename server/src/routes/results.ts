@@ -17,7 +17,7 @@ resultsRouter.get('/mine', allow('student'), async (req, res) => {
 });
 
 resultsRouter.get('/exam/:examId', allow('teacher', 'super_admin'), async (req, res) => {
-  const exam = await canManageExam(req, req.params.examId);
+  const exam = await canManageExam(req, String(req.params.examId));
   if (!exam) return res.status(404).json({ message: 'Exam not found or access denied' });
   const results = await Result.find({ exam: exam._id }).populate('student', 'name email studentCode batch').sort({ obtainedMarks: -1 }).lean();
   res.json({ exam, results });
